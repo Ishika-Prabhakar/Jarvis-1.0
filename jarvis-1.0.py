@@ -8,7 +8,11 @@ import webbrowser as wb
 import psutil
 import pyjokes
 import os
-
+import pyautogui
+import json
+import requests
+from urllib.request import urlopen
+import wolframalpha
 
 
 
@@ -90,6 +94,11 @@ def joke():
     speak(pyjokes.get_joke())
 
 
+def screenshot():
+    img = pyautogui.screenshot()
+    img.save('/home/ishika/pictures.png')
+
+
 
 
 if __name__=='__main__':
@@ -159,3 +168,55 @@ if __name__=='__main__':
             speak("Opening vs code........")
             vs_code = r'/home/ishika/Downloads'
             os.startfile(vs_code)
+        elif 'write a note' in query:
+            speak('What should I write?')
+            notes = TakeCommand()
+            file = open('notes.txt','w')
+            speak("should I include the date and time?")
+            ans = TakeCommand()
+            if 'yes' in ans or 'sure' in ans:
+                strTime = datetime.datetime.now().strftime("%H:%M:%S")
+                file.write(strTime)
+                file.write(':-')
+                file.write(notes)
+                speak('Done Taking Notes')
+            else:
+                file.write(notes)
+        elif 'show notes' in query:
+            speak("Showing notes")
+            file = open('notes.txt','r')
+            print(file.read())
+            speak(file.read())
+        elif 'screenshot' in query:
+            screenshot()
+        elif 'remember that' in query:
+            speak('What should I remember?')
+            memory = TakeCommand()
+            speak("You asked me to remember that"+memory)
+            remember = open('memory.txt','w')
+            remember.write(memory)
+            remember.close()
+        elif 'do you remember anything' in query:
+            remember = open('memory.txt','r')
+            speak('You asked me to remember that'+remember)
+        elif 'news' in query:
+            try:
+                jsonobj = urlopen("https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=6555bb47cca8493d8049fc4a3e92cd98")
+                data = json.load(jsonobj)
+                i=1
+                speak('Here are some top Headlines')
+                print('============TOP HEADLINES============'+'\n')
+                for item in data['articles']:
+                    print(str(i)+', '+item['title']+'\n')
+                    print(item['description']+'\n')
+                    speak(item['title'])
+                    i+=1
+            except Exception as e:
+                print(str(e))
+        elif 'where is' in query:
+            query = query.replace('where is','')
+            location = query
+            speak('User asked to locate'+location)
+            wb.open_new_tab('https://maps.google.com/'+location)
+        
+        
